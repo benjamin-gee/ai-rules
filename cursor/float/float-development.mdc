@@ -1,0 +1,28 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- When running any commands, these should be done in my virtual environment `source .venv/bin/activate`
+- when writing new code do not include comments or docstrings
+- Always write typed code
+- Remove `# pyright:basic` from the code when possible
+- Never use `Optional` syntax only use `| None`
+- Avoid `# type:ignore` as much as possible`
+- When updating a file, always run the associated tests for that file See `.cursor/rules/testing_rules.mdc`
+- When creating methods in a view file, use a function based view. See `/Users/benjamingee/src/core-backend/core_app/apis/businessapi/views/beneficial_owner_views.py` for an example
+- if you add a new url to a `urls.py` file, the same url should be added to `openapi.py`
+
+# Writing view files
+- Methods is a view file should be decorated with `@extend_schema` from `from drf_spectacular.utils import extend_schema`
+- When decorating a method with `@extend_schema`, be sure to provide an `operation_id`, a `request` that is an input schema that that inherits from `from core_app.utils.pydantic.schemas import InputSchema`, and a response of type `FloatResponseSchema[OutputSchema]` where `FloatResponseSchema` comes from `from core_app.utils.pydantic.schemas import FloatResponseSchema` and the `OutputSchema` is a defined schema that inherits from `from core_app.utils.pydantic.schemas import OutputSchema`
+- When specifying the responses with `@extend_schema`, be sure to use status codes from `from rest_framework import status`
+- Methods in a view file should have the decorator `@api_view` from `from rest_framework.decorators import api_view` with the correct type of http request
+- Methods in a view file should validate the input using `@validate_input` from `from core_app.utils.pydantic.validate_decorator import validate_input` and generally should be using an input schema that inherits from `from core_app.utils.pydantic.schemas import InputSchema`
+- Methods in a view file should be decorated with `@requires_action_scope` and you can default to use `AppActionScopes.manage_primary_administrators` from `from core_app.auth.permissions.constants import AppActionScopes`
+- An example of a way to define the input and output schemas is `core-backend/core_app/apis/businessapi/schemas/beneficial_owner_schema.py`
+- An example of a good view file is `core-backend/core_app/apis/businessapi/views/beneficial_owner_views.py`
+
