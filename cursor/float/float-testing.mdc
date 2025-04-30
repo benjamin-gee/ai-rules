@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- Tests should be run in the virtual environment: `source .venv/bin/activate`
+- Tests use the native test settings: `core_app.settings.native_test`
+- when writing new code do not include comments or docstrings
+- When creating test data, use things from the Harry Potter world
+
+# Running Tests
+
+## Single Test File
+- To run a specific test file: `python manage.py test [test_file_path] --settings=core_app.settings.native_test`
+- Example: `python manage.py test core_app.apis.creditproductmonitoringapi.tests.webhooks.test_underwriting_decision_webhook --settings=core_app.settings.native_test`
+
+## Single Test Case
+- To run a specific test case: `python manage.py test [test_file_path].[TestClass] --settings=core_app.settings.native_test`
+- Example: `python manage.py test core_app.apis.creditproductmonitoringapi.tests.webhooks.test_underwriting_decision_webhook.TestUnderwritingDecisionWebhook --settings=core_app.settings.native_test`
+
+## Single Test Method
+- To run a specific test method: `python manage.py test [test_file_path].[TestClass].[test_method] --settings=core_app.settings.native_test`
+- Example: `python manage.py test core_app.apis.creditproductmonitoringapi.tests.webhooks.test_underwriting_decision_webhook.TestUnderwritingDecisionWebhook.test_create_underwriting_decision_success --settings=core_app.settings.native_test`
+
+# Repository Test Patterns
+- Repository tests should inherit from `from django.test import TestCase`
+- When you are asserting the reponse of a request, assert the request like this: `self.assertEqual(response.status_code, status.HTTP_200_OK, response.content)` i.e., assert the code against the code from `from rest_framework import status` and always pass in `response.content` as the final variable for helpful logging
+
+# Service Test Patterns
+- Service tests should always be strict unit tests and inherit from `from django.test import SimpleTestCase`
+- Service tests should always mock external calls using `from unittest.mock import Mock, patch` like this:
+  - Example:`@patch("core_app.apis.creditproductmonitoringapi.services.underwriting_decision_service.UnderwritingDecisionRepository") def test_create(self, mock_repository: Mock):`
+- If there are a lot of similar tests, and basically just the inputs are the same, it should be written as one test with multiple parameters, using `from parameterized import param, parameterized` like this
+  - Example: `@parameterized.expand([param("True test case", true), param("False test case", false)]) def test_case(self, _, is_enabled: boolean) -> None:`
+- If you need to create an entity, either use an existing factory (such as `from core_app.testing.factories import AdminProfileFactory, BusinessFactory`) or create a new factory if one doesn't exist. A good example is `core_app/testing/factories/beneficial_owner_factory.py`. Do not mock entities.
+
+# View Test Patterns
+- View tests should always be integration tests and should inherit from `from core_app.testing.fixtures import FixturesAPITestCase`
+- When setting up test data, anything that will be reused in each test case should be put in a `@classmethod def setUpTestData(cls) -> None:` method so that it is only created once for the whole test class
+- Try not to use magic numbers, anything that is being tested and asserted should be stored in a variable in the `setUpTestData` method
+- Make sure to test each type of response from the view method (Generally the success case and any error cases such as 404s or 422s)
+- Be sure to assert each of the expected values in the response
